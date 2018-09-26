@@ -33,17 +33,39 @@ def formatDescription(msg, obj, objType):
         details = obj.stats
    # else:
    #    details = obj
-    matches = re.findall("\[\S*\]",msg)
-    if matches:
-        print(matches[0])
-    
-    
+    origPattern = re.compile(r"<\S+>")
+    #origPattern = re.compile(r"(<.+[^<].*>)|<(\S+)>")
+    keyPattern = re.compile(r"<(\S+)>")
+    moOrig = origPattern.findall(msg)
+    moKey = keyPattern.findall(msg)
+    formatString = []
+    formatMsg = msg
+    if moOrig:
+        for match in moOrig:
+            print("found a match: ")
+            print(match)
+    else: 
+        print("no matches")
+    if moKey: 
+        print("moKey:")
+        for match in moKey:
+            print(details[match])
+    for index, match in enumerate(moOrig):
+        subPattern = re.compile(match)
+        formatMsg = subPattern.sub("{" + str(index) + "}", formatMsg)
+        #replace match in formatMsg with "{" + index + "}" here also
+        #print("index:" + str(index))
+        #print(details[moKey[index]])
+        formatString.append(details[moKey[index]])
+    return([formatMsg,formatString])
+
+
         
 
 def main():
-    formatDescription("This is [article] [name] test string.",test,"enemy")
+
     goAdventuring = True
-    
+
     while goAdventuring:
         
         enemy = Encounter.Foe()
@@ -154,6 +176,15 @@ if __name__ == "__main__":
     
     pc = Character.Adventurer()
     test = Encounter.Foe()
-    main()
+    msg = formatDescription("This is <article> <name> test string.",test,"enemy")
+    fmtArgs = msg[1]
+
+    print(msg[0].format(fmtArgs[0], fmtArgs[1]))
+    # in formatDescription, use argparse
+    # https://docs.python.org/3/howto/argparse.html
+    #print(msg[0])
+    #print(msg[1][0])
+    #print(msg[1][1])
+    #main()
     
     
